@@ -106,7 +106,7 @@ def update_crop_prices(file_path, file_name):
 
 def update_all_crop_prices(request):
     """สแกนและนำเข้าข้อมูลจากทุกไฟล์ .xls ในโฟลเดอร์"""
-    folder_path = "D:/Bluzora Backend/price_prediction/crops_price/"
+    folder_path = "D:/Bluzora Backend/crops_price/"
     
     if not os.path.exists(folder_path):
         return JsonResponse({"error": "ไม่พบโฟลเดอร์"}, status=400)
