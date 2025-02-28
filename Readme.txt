@@ -52,7 +52,7 @@ git
 git status
 git branch
 git add .
-git commit -m "บันทึกการเปลี่ยนแปลงก่อน pull"
+git commit -m "แก้ปัญหาเรียกapiโหลดช้า"
  git push -f origin main 
 
 ข้างล่างนี่ไม่มีไร
