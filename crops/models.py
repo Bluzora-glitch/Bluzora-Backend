@@ -4,7 +4,7 @@ from datetime import date
 
 # 1. Crop Table
 class Crop(models.Model):
-    crop_id = models.AutoField(primary_key=True)  # กำหนด PK ชื่อ crop_id
+    crop_id = models.AutoField(primary_key=True)
     crop_image = models.ImageField(upload_to='crop_images/', null=True, blank=True)
     crop_name = models.CharField(max_length=255, unique=True)
     unit = models.CharField(max_length=50)
@@ -16,11 +16,11 @@ class Crop(models.Model):
 
 # 2. Crop_Variable Table
 class CropVariable(models.Model):
-    variable_id = models.AutoField(primary_key=True)  # ถ้าอยากให้มี PK ชื่อ variable_id
+    variable_id = models.AutoField(primary_key=True)
     crop = models.ForeignKey(
         Crop,
         on_delete=models.CASCADE,
-        db_column='crop_id'  # บอก Django ว่าใช้คอลัมน์ชื่อ crop_id เป็น FK
+        db_column='crop_id'
     )
     average_price = models.DecimalField(max_digits=10, decimal_places=2)
     min_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -33,7 +33,6 @@ class CropVariable(models.Model):
 
 # 3. Predicted_Data Table
 class PredictedData(models.Model):
-    # สมมติให้มี PK ชื่อ predicted_id หรือจะใช้คอลัมน์อื่นก็ได้
     predicted_id = models.AutoField(primary_key=True)
     crop = models.ForeignKey(
         Crop,

@@ -34,8 +34,17 @@ random forest https://colab.research.google.com/drive/1VmDUHsPRwsDxdIFXStAQHBdXF
 http://127.0.0.1:8000/api/update-all-prices/
 เว็บ admin จัดการข้อมูล
 http://127.0.0.1:8000/admin/crops/cropvariable/
+เว็บอัปเดต ml เรียกใช้ feature_engineering, recursive_forecast 
+http://127.0.0.1:8000/crops/forecast/
+ตอนนี้ API root endpoint จะอยู่ที่:
+http://127.0.0.1:8000/api/
+http://127.0.0.1:8000/api/crops/forecast/
+http://127.0.0.1:8000/api/crop-variables/
+http://127.0.0.1:8000/api/predicted-data/
+
 ดูว่ามี url ไรบ้าง
 python manage.py show_urls
+
 
 อันนี้ ลืม
 python manage.py shell
