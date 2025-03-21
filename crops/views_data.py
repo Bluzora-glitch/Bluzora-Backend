@@ -33,7 +33,7 @@ def convert_thai_date(thai_date):
 
 def update_crop_prices_from_request(request):
     """อ่านไฟล์จาก path ที่กำหนดแล้วอัปโหลดข้อมูล (สำหรับเรียกผ่าน API Django)"""
-    file_path = "D:/Bluzora Backend/price_prediction/prices_downloaded.xls"
+    file_path = "D:/Bluzora-Backend/price_prediction/prices_downloaded.xls"
     file_name = os.path.basename(file_path)
     success = update_crop_prices(file_path, file_name)  # ✅ ส่งค่าถูกต้อง
 
@@ -106,7 +106,7 @@ def update_crop_prices(file_path, file_name):
 
 def update_all_crop_prices(request):
     """สแกนและนำเข้าข้อมูลจากทุกไฟล์ .xls ในโฟลเดอร์"""
-    folder_path = "D:/Bluzora Backend/crops_price/"
+    folder_path = "D:/Bluzora-Backend/crops_price/"
     
     if not os.path.exists(folder_path):
         return JsonResponse({"error": "ไม่พบโฟลเดอร์"}, status=400)

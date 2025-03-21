@@ -36,3 +36,5 @@ scikit-learn
 joblib
 scipy
 djangorestframework
+django-extensions
+django-filter
