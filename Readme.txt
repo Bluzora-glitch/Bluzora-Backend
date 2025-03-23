@@ -61,9 +61,12 @@ password ก็คือ password
 git
 git status
 git branch
+git remote -v
 git add .
 git commit -m "แก้ปัญหาเรียกapiโหลดช้า"
- git push -f origin main 
+git push -f origin main
+git push origin backend_with_api_date
+ 
 
 ข้างล่างนี่ไม่มีไร
 
