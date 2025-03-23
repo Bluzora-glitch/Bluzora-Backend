@@ -38,6 +38,44 @@ def export_price_data_excel(request):
         predicted_date__lte=end_date
     ).values('predicted_date', 'predicted_price')
     
+    # รวมข้อมูลทั้ง historical และ predicted เป็นรายการเดียวกัน
+    combined_rows = []
+    
+    # เพิ่มข้อมูล historical ทั้งหมด
+    for item in historical_qs:
+        date_dt = item['date']
+        combined_rows.append({
+            "crop_name": crop_obj.crop_name,
+            "date": date_dt.strftime("%Y-%m-%d"),
+            "date_dt": date_dt,
+            "min_price": float(item['min_price']),
+            "max_price": float(item['max_price']),
+            "average_price": float(item['average_price']),
+            "predicted_price": ""  # ไม่มีข้อมูล predicted ในแถว historical
+        })
+    
+    # สร้าง set ของวันที่ที่มีข้อมูล historical (ในรูปแบบสตริง)
+    historical_dates = {row["date"] for row in combined_rows}
+    
+    # เพิ่มข้อมูล predicted เฉพาะวันที่ที่ไม่มีข้อมูล historical
+    for item in predicted_qs:
+        date_dt = item['predicted_date']
+        date_str = date_dt.strftime("%Y-%m-%d")
+        if date_str in historical_dates:
+            continue  # ข้ามถ้ามีข้อมูล historical อยู่แล้วในวันนั้น
+        combined_rows.append({
+            "crop_name": crop_obj.crop_name,
+            "date": date_str,
+            "date_dt": date_dt,
+            "min_price": "",
+            "max_price": "",
+            "average_price": "",
+            "predicted_price": float(item['predicted_price'])
+        })
+    
+    # เรียงลำดับ combined_rows โดยใช้ค่า date_dt จากเก่าไปใหม่
+    combined_rows.sort(key=lambda row: row["date_dt"])
+    
     # สร้าง workbook ด้วย openpyxl
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -47,28 +85,17 @@ def export_price_data_excel(request):
     headers = ["Crop Name", "Date", "Min Price", "Max Price", "Average Price", "Predicted Price"]
     ws.append(headers)
 
-    # เขียนข้อมูล historical
-    for item in historical_qs:
+    # เขียนข้อมูลจาก combined_rows ลงใน worksheet
+    for row in combined_rows:
         ws.append([
-            crop_obj.crop_name,
-            item['date'].strftime("%Y-%m-%d"),
-            float(item['min_price']),
-            float(item['max_price']),
-            float(item['average_price']),
-            ""  # ไม่มี predicted price ใน historical row
+            row["crop_name"],
+            row["date"],
+            row["min_price"],
+            row["max_price"],
+            row["average_price"],
+            row["predicted_price"],
         ])
     
-    # เขียนข้อมูล predicted
-    for item in predicted_qs:
-        ws.append([
-            crop_obj.crop_name,
-            item['predicted_date'].strftime("%Y-%m-%d"),
-            "",  # historical ไม่มีข้อมูลในแถว predicted
-            "",
-            "",
-            float(item['predicted_price'])
-        ])
-
     # สร้างกราฟใน worksheet (ตัวอย่างใช้ LineChart)
     chart = LineChart()
     chart.title = "Price Forecast"
@@ -77,7 +104,7 @@ def export_price_data_excel(request):
 
     data = Reference(ws, min_col=1, min_row=1, max_col=6, max_row=ws.max_row)
     chart.add_data(data, titles_from_data=True)
-    ws.add_chart(chart, "H2")
+    ws.add_chart(chart, "H2")  # วางกราฟที่ตำแหน่ง H2
 
     stream = io.BytesIO()
     wb.save(stream)

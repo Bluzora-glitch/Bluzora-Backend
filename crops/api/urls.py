@@ -1,8 +1,16 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views_api import CropViewSet, CropVariableViewSet, PredictedDataViewSet
-from .views_api import crops_list, combined_price_forecast
-from .export_excel import export_price_data_excel 
+from .views_api import (
+    CropViewSet, 
+    CropVariableViewSet, 
+    PredictedDataViewSet,
+    crops_list, 
+    combined_price_forecast
+)
+from .export_excel import export_price_data_excel
+from .crop_info_list import all_vegetable_info  # Import view จาก crop_info_list.py
+from django.conf import settings
+from django.conf.urls.static import static
 
 router = DefaultRouter()
 router.register(r'crops', CropViewSet)
@@ -11,8 +19,15 @@ router.register(r'predicted-data', PredictedDataViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),
-    # เพิ่ม URL สำหรับ combined price forecast endpoint
+    # URL สำหรับดึงรายชื่อผัก (แบบ crops_list)
     path('api/crops-list/', crops_list, name='crops_list'),
+    # URL สำหรับ combined price forecast endpoint
     path('api/combined-priceforecast/', combined_price_forecast, name='combined_price_forecast'),
+    # URL สำหรับ export excel endpoint
     path('api/export-excel/', export_price_data_excel, name='export_excel'),
+    # URL สำหรับแสดงข้อมูลผักทั้งหมด (จาก Crop) ในรูปแบบที่ต้องการ
+    path('api/crop-info-list/', all_vegetable_info, name='crop_info_list'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

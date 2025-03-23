@@ -123,6 +123,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+import os
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+MEDIA_URL = '/crop_images/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'crop_images')
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
