@@ -38,3 +38,4 @@ scipy
 djangorestframework
 django-extensions
 django-filter
+openpyxl
