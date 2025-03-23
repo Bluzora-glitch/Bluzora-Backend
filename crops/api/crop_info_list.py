@@ -21,9 +21,10 @@ def all_vegetable_info(request):
     """
     ส่งกลับข้อมูลของผักทุกชนิดในตาราง Crops พร้อมกับข้อมูลจาก CropVariable
     รูปแบบที่ส่งกลับ:
-      - name: ชื่อผัก (จาก Crop.crop_name) (จะไม่ encode เป็น percent-encoded)
+      - name: ชื่อผัก (จาก Crop.crop_name)
       - unit: หน่วย (จาก Crop.unit)
       - price: "฿min - ฿max / unit" (จาก CropVariable ของวันที่ล่าสุด โดยไม่มีทศนิยม)
+      - avg_price: ราคาเฉลี่ย (จาก CropVariable ของวันที่ล่าสุด โดยไม่มีทศนิยม)
       - change: เปอร์เซ็นต์การเปลี่ยนแปลงราคา (คำนวณจาก historical data ของวันที่ล่าสุด)
       - image: URL รูปภาพแบบ absolute (จาก Crop.crop_image) โดยไม่ encode ชื่อไฟล์
       - status: "up" หรือ "down" ตามการเปลี่ยนแปลงราคา
@@ -36,6 +37,8 @@ def all_vegetable_info(request):
             latest = historical_vars.last()
             previous = historical_vars.exclude(date=latest.date).last()
             price_str = f"฿{int(latest.min_price)} - ฿{int(latest.max_price)} / {crop.unit}"
+            # เพิ่ม key ราคาเฉลี่ย โดยใช้ average_price ของ record ล่าสุด
+            avg_price = f"฿{int(latest.average_price)} / {crop.unit}"
             if previous and previous.average_price:
                 change_value = (latest.average_price - previous.average_price) / previous.average_price * 100
                 change_percent = round(change_value, 2)
@@ -50,25 +53,24 @@ def all_vegetable_info(request):
                 status = "up"
         else:
             price_str = ""
+            avg_price = ""
             change_str = ""
             status = ""
         
         if crop.crop_image:
-            # รับค่า URL ที่ได้จาก crop.crop_image.url
             raw_url = crop.crop_image.url
-            # ถ้า raw_url มี "crop_images/crop_images/" ให้แทนที่ด้วย "/crop_images/"
             if raw_url.startswith('/crop_images/crop_images/'):
                 raw_url = raw_url.replace('/crop_images/crop_images/', '/crop_images/', 1)
             image_url = request.build_absolute_uri(raw_url)
             image_url = urllib.parse.unquote(image_url)
         else:
             image_url = request.build_absolute_uri("/assets/default.jpg")
-
         
         data = {
             "name": crop.crop_name,
             "unit": crop.unit,
             "price": price_str,
+            "avg_price": avg_price,   # เพิ่ม key ราคาเฉลี่ย
             "change": change_str,
             "image": image_url,
             "status": status,
