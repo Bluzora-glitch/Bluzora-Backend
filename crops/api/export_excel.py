@@ -81,7 +81,7 @@ def export_price_data_excel(request):
     ws = wb.active
     ws.title = "Price Data"
 
-    # เพิ่มคอลัมน์ "Crop Name" ในหัวตาราง
+    # เพิ่ม header row
     headers = ["Crop Name", "Date", "Min Price", "Max Price", "Average Price", "Predicted Price"]
     ws.append(headers)
 
@@ -96,16 +96,25 @@ def export_price_data_excel(request):
             row["predicted_price"],
         ])
     
-    # สร้างกราฟใน worksheet (ตัวอย่างใช้ LineChart)
+    # สร้างกราฟ LineChart สำหรับแสดงเฉพาะ Average Price กับ Date
     chart = LineChart()
     chart.title = "Price Forecast"
     chart.y_axis.title = "Price"
     chart.x_axis.title = "Date"
 
-    data = Reference(ws, min_col=1, min_row=1, max_col=6, max_row=ws.max_row)
-    chart.add_data(data, titles_from_data=True)
-    ws.add_chart(chart, "H2")  # วางกราฟที่ตำแหน่ง H2
+    # กำหนดข้อมูลสำหรับกราฟ: 
+    # ใช้คอลัมน์ 5 ("Average Price") สำหรับข้อมูล y-values โดยข้าม header row (min_row=2)
+    data = Reference(ws, min_col=5, min_row=2, max_row=ws.max_row)
+    chart.add_data(data, titles_from_data=False)
+    
+    # กำหนด categories (แกน x) โดยใช้คอลัมน์ 2 ("Date")
+    categories = Reference(ws, min_col=2, min_row=2, max_row=ws.max_row)
+    chart.set_categories(categories)
+    
+    # วางกราฟใน worksheet ที่ตำแหน่ง "H2"
+    ws.add_chart(chart, "H2")
 
+    # สร้างไฟล์ excel ใน memory stream
     stream = io.BytesIO()
     wb.save(stream)
     stream.seek(0)

@@ -11,6 +11,7 @@ from .export_excel import export_price_data_excel
 from .crop_info_list import all_vegetable_info  # Import view จาก crop_info_list.py
 from django.conf import settings
 from django.conf.urls.static import static
+from .quarterly_avg_api import quarterly_avg_data
 
 router = DefaultRouter()
 router.register(r'crops', CropViewSet)
@@ -27,6 +28,7 @@ urlpatterns = [
     path('api/export-excel/', export_price_data_excel, name='export_excel'),
     # URL สำหรับแสดงข้อมูลผักทั้งหมด (จาก Crop) ในรูปแบบที่ต้องการ
     path('api/crop-info-list/', all_vegetable_info, name='crop_info_list'),
+    path('api/quarterly-avg/', quarterly_avg_data, name='quarterly_avg'),
 ]
 
 if settings.DEBUG:

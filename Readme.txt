@@ -43,7 +43,7 @@ http://127.0.0.1:8000/api/crop-variables/
 http://127.0.0.1:8000/api/predicted-data/
 http://127.0.0.1:8000/api/combined-priceforecast/?vegetableName=%E0%B8%9C%E0%B8%B1%E0%B8%81%E0%B8%84%E0%B8%B0%E0%B8%99%E0%B9%89%E0%B8%B2%20%E0%B8%84%E0%B8%A5%E0%B8%B0&startDate=2025-03-02&endDate=2025-03-31
 http://127.0.0.1:8000/api/crop-info-list/
-
+http://127.0.0.1:8000/api/quarterly-avg/?crop_name=ผักกวางตุ้ง คละ&startDate=2023-01-01&endDate=2023-01-31
 
 
 ดูว่ามี url ไรบ้าง
