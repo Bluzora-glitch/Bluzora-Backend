@@ -5,7 +5,7 @@ from datetime import date
 # 1. Crop Table
 class Crop(models.Model):
     crop_id = models.AutoField(primary_key=True)
-    crop_image = models.ImageField(upload_to='crop_images/', null=True, blank=True)
+    crop_image = models.ImageField(upload_to="", null=True, blank=True)
     crop_name = models.CharField(max_length=255, unique=True)
     unit = models.CharField(max_length=50)
     grow_duration = models.IntegerField(help_text="ระยะเวลาปลูก (วัน)")

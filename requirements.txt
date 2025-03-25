@@ -1,4 +1,4 @@
-asgiref==3.8.1
+﻿asgiref==3.8.1
 attrs==25.1.0
 beautifulsoup4==4.13.3
 certifi==2025.1.31
@@ -39,3 +39,4 @@ djangorestframework
 django-extensions
 django-filter
 openpyxl
+django-cors-headers==4.7.0
