@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.response import Response
-from crops.models import Crop, CropVariable
+from crops.models import Crop, CropVariable, PredictedData  # เพิ่ม PredictedData
 from django.utils.dateparse import parse_date
 from rest_framework.renderers import JSONRenderer
 import json
@@ -33,6 +33,11 @@ def quarterly_avg_data(request):
             { "date": "2023-01-02", "min_price": 11, "max_price": 21, "average_price": 16 },
             ...
         ],
+        "predictedPrices": [
+            { "date": "2023-01-03", "predicted_price": 17 },
+            { "date": "2023-01-04", "predicted_price": 18 },
+            ...
+        ],
         "summary": {
             "overall_average": 15.5,
             "overall_min": 10,
@@ -41,7 +46,6 @@ def quarterly_avg_data(request):
         }
       }
     """
-    # รับ query parameters โดยใช้ key "crop_name", "startDate", และ "endDate"
     crop_name = request.GET.get('crop_name')
     start_date_str = request.GET.get('startDate')
     end_date_str = request.GET.get('endDate')
@@ -49,7 +53,6 @@ def quarterly_avg_data(request):
     if not (crop_name and start_date_str and end_date_str):
         return Response({"error": "Missing required parameters"}, status=400)
     
-    # แปลงวันที่ด้วย parse_date หรือ fallback ด้วย datetime.strptime
     try:
         start_date = parse_date(start_date_str)
         if start_date is None:
@@ -60,20 +63,16 @@ def quarterly_avg_data(request):
     except Exception as e:
         return Response({"error": "Invalid date format. Use YYYY-MM-DD."}, status=400)
     
-    # ทำความสะอาดค่า crop_name และค้นหา Crop ที่ตรงกัน
-    crop_name_clean = crop_name.strip()
-    crop_obj = Crop.objects.filter(crop_name__icontains=crop_name_clean).first()
+    crop_obj = Crop.objects.filter(crop_name__icontains=crop_name.strip()).first()
     if not crop_obj:
         return Response({"error": "Crop not found"}, status=404)
     
-    # Query historical data จาก CropVariable ในช่วงวันที่ที่ระบุ
     historical_qs = CropVariable.objects.filter(
         crop=crop_obj,
         date__gte=start_date,
         date__lte=end_date
     ).order_by('date')
     
-    # สร้าง list ของ dailyPrices
     dailyPrices = []
     for var in historical_qs:
         dailyPrices.append({
@@ -81,6 +80,20 @@ def quarterly_avg_data(request):
             "min_price": float(var.min_price) if var.min_price is not None else None,
             "max_price": float(var.max_price) if var.max_price is not None else None,
             "average_price": float(var.average_price) if var.average_price is not None else None,
+        })
+    
+    # Query ข้อมูล predicted จาก PredictedData model
+    predicted_qs = PredictedData.objects.filter(
+        crop=crop_obj,
+        predicted_date__gte=start_date,
+        predicted_date__lte=end_date
+    ).order_by('predicted_date')
+    
+    predictedPrices = []
+    for item in predicted_qs:
+        predictedPrices.append({
+            "date": item.predicted_date.isoformat(),
+            "predicted_price": float(item.predicted_price) if item.predicted_price is not None else None,
         })
     
     # คำนวณ summary
@@ -93,7 +106,6 @@ def quarterly_avg_data(request):
     max_prices = [float(var.max_price) for var in historical_qs if var.max_price is not None]
     overall_max = max(max_prices) if max_prices else None
 
-    # คำนวณ price_change จากราคา ณ วันที่เริ่มต้นและวันที่สิ้นสุด
     if historical_qs.exists():
         start_var = historical_qs.first()
         end_var = historical_qs.last()
@@ -101,10 +113,8 @@ def quarterly_avg_data(request):
             try:
                 start_price = float(start_var.average_price)
                 end_price = float(end_var.average_price)
-                # คำนวณเปอร์เซ็นต์การเปลี่ยนแปลง
                 change_value = ((end_price - start_price) / start_price) * 100
                 change_percent = round(abs(change_value), 2)
-                # คำนวณจำนวนวันที่แตกต่างกัน
                 days_diff = (end_date - start_date).days
                 arrow = "⭡" if change_value >= 0 else "⭣"
                 price_change_str = f"{arrow} {change_percent}% จาก {days_diff} วันที่แล้ว"
@@ -126,9 +136,10 @@ def quarterly_avg_data(request):
     }
     
     data = {
-        "name": crop_obj.crop_name,   # แมปชื่อผัก
-        "unit": crop_obj.unit,        # เพิ่ม key unit จาก Crop
-        "dailyPrices": dailyPrices,   # รายการข้อมูล historical price
+        "name": crop_obj.crop_name,
+        "unit": crop_obj.unit,
+        "dailyPrices": dailyPrices,
+        "predictedPrices": predictedPrices,
         "summary": summary,
     }
     
