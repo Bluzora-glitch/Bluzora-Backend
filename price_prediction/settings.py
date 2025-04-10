@@ -37,7 +37,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
+    'rest_framework',
+    'django_filters',
     'crops',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -48,7 +52,26 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True  # หรือระบุรายการ origins ที่อนุญาต
+
+from rest_framework.renderers import JSONRenderer
+
+class UTF8JSONRenderer(JSONRenderer):
+    charset = 'utf-8'
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100,  # แสดง 100 rows ต่อหน้า (ปรับได้ตามความเหมาะสม)
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_CHARSET': 'utf-8',
+}
+
 
 ROOT_URLCONF = 'price_prediction.urls'
 
@@ -100,6 +123,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+import os
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+MEDIA_URL = '/crop_images/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'crop_images')
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
