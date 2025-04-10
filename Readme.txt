@@ -21,6 +21,7 @@ pip install django selenium pandas beautifulsoup4 requests
 
 เปิดมาต้องเรียก ใช้เพื่ออัพเดต database
 python manage.py showmigrations
+python manage.py makemigrations
 python manage.py migrate  # ถ้าพบว่าต้อง migrate
 
 ใช้ runserver เพื่อดูหน้าเว็บ

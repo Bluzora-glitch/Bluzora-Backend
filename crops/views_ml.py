@@ -1,10 +1,9 @@
 import os
 import joblib
 import pandas as pd
-from datetime import date, timedelta
 from django.http import JsonResponse
 from django.db import transaction
-from .models import Crop, CropVariable, PredictedData
+from .models import Crop, CropVariable, PredictedData, CropModelMapping
 from .ml.feature_engineering import feature_engineering
 from .ml.recursive_forecast import recursive_forecast
 
@@ -25,22 +24,19 @@ def get_data_from_db(crop_name):
     return df
 
 def forecast_and_save(request):
-    # Mapping ระหว่างชื่อพืชกับไฟล์โมเดล
-    models_mapping = {
-        "ผักคะน้า คละ": "crops/ml_models/kana_rf_grid.joblib",
-        "ผักชี คละ (บาท/กก.)": "crops/ml_models/pakchee_rf_grid.joblib",
-        "ผักกวางตุ้ง คละ": "crops/ml_models/kuangthung_rf_grid.joblib"
-    }
+    # ดึง mapping จากฐานข้อมูล โดยใช้ mapping.crop.crop_name เป็น key
+    mappings = {mapping.crop.crop_name: mapping.model_path for mapping in CropModelMapping.objects.all()}
 
     with transaction.atomic():
-        for crop_name, model_path in models_mapping.items():
-            # โหลดโมเดล
+        for crop_name, model_path in mappings.items():
+            # ตรวจสอบว่าไฟล์โมเดลมีอยู่หรือไม่
             if not os.path.exists(model_path):
                 print(f"ไม่พบไฟล์โมเดล {model_path}")
                 continue
+
             rf_model = joblib.load(model_path)
 
-            # ดึงข้อมูลจาก DB แทนการอ่าน CSV
+            # ดึงข้อมูลจาก DB
             df_raw = get_data_from_db(crop_name)
             if df_raw.empty:
                 print(f"ไม่มีข้อมูลใน DB สำหรับ {crop_name}")

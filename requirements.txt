@@ -32,7 +32,7 @@ wsproto==1.2.0
 pandas
 numpy
 matplotlib
-scikit-learn
+scikit-learn==1.5.1
 joblib
 scipy
 djangorestframework
