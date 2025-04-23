@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from crops.models import Crop, CropVariable, PredictedData
 from .filters import CropVariableFilter, PredictedDataFilter
 from .serializers import CropSerializer, CropVariableSerializer, PredictedDataSerializer
+
 import math
 
 class CropVariablePagination(PageNumberPagination):
@@ -195,11 +196,15 @@ def combined_price_forecast(request):
         "price_change_percent": round(price_change_percent, 2)
     }
     
-    return Response({
-        "results": combined,
-        "combined": combined_price_list,
-        "overall_summary": overall_summary
-    })
+    return JsonResponse(
+        {
+            "results": combined,
+            "combined": combined_price_list,
+            "overall_summary": overall_summary
+        },
+        json_dumps_params={'ensure_ascii': False},
+        charset='utf-8',
+    )
 
 def _calculate_volatility_from_prices(prices):
     """
