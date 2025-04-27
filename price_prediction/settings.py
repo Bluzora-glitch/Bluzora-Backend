@@ -13,6 +13,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # ตั้งไว้ที่ root directory
 
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
 STATICFILES_DIRS = [
     BASE_DIR / "static",  # ถ้ามีไฟล์ static ในโฟลเดอร์ root ของโปรเจค
 ]
