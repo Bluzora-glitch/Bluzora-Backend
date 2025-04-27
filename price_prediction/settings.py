@@ -1,7 +1,7 @@
 import os
-from dotenv import load_dotenv
-import dj_database_url  # เพิ่มการใช้งาน dj-database-url
 from pathlib import Path
+import dj_database_url
+from dotenv import load_dotenv
 
 # โหลดค่า .env
 load_dotenv()
@@ -19,7 +19,8 @@ DEBUG = os.getenv('DEBUG') == 'True'
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-ALLOWED_HOSTS = ['bluzora-backend.onrender.com', 'www.bluzora-backend.onrender.com', 'localhost', '127.0.0.1']
+# Allowed hosts (เพิ่มโดเมนที่จำเป็น)
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -47,8 +48,10 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
+# CORS configuration
 CORS_ALLOW_ALL_ORIGINS = True  # หรือระบุรายการ origins ที่อนุญาต
 
+# REST framework settings
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -80,26 +83,20 @@ TEMPLATES = [
 WSGI_APPLICATION = 'price_prediction.wsgi.application'
 
 # Database settings using DATABASE_URL from .env
+DATABASE_URL = os.getenv('DATABASE_URL')
+
 DATABASES = {
-    'default': {
+    'default': dj_database_url.config(default=DATABASE_URL) if DATABASE_URL else {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
+        'NAME': os.getenv('DB_NAME').strip(),  # ใช้ .strip() เพื่อลบช่องว่างจากชื่อฐานข้อมูล
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),  # ใช้ localhost ในเครื่อง local
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
-# ใช้ dj-database-url ถ้ามี DATABASE_URL
-DATABASE_URL = os.getenv('DATABASE_URL')
-if DATABASE_URL:
-    DATABASES['default'] = dj_database_url.config(default=DATABASE_URL)
-
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
-
-# Media files
 MEDIA_URL = '/crop_images/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'crop_images')
 
