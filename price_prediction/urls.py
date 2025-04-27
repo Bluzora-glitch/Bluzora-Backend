@@ -25,4 +25,8 @@ urlpatterns = [
     path('api/', include('crops.api.urls')),  # ใช้แยกเส้นทาง API
 ]
 
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+if settings.DEBUG:  # ถ้าใน local development
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+else:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
