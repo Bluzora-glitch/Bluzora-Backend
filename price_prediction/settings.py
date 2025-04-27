@@ -10,16 +10,14 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ตั้งค่า STATIC_URL และ STATIC_ROOT
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # ตั้งไว้ที่ root directory
-
+STATIC_URL = '/static/'  # URL สำหรับเข้าถึงไฟล์ static
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # ที่เก็บไฟล์ static ที่รวบรวมแล้ว
 
 STATICFILES_DIRS = [
-    BASE_DIR / "static",  # ใช้โฟลเดอร์ static ในโปรเจคของคุณ
-    '/opt/render/project/src/static',  # เพิ่ม path ที่ Render ใช้สำหรับ static
+    BASE_DIR / "static",  # ถ้ามีไฟล์ static ในโฟลเดอร์ root ของโปรเจค
 ]
 
-
+# อื่นๆ ที่เกี่ยวข้องกับ Static Files
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
 
