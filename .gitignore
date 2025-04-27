@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual Environment
+venv/
+
+# Django stuff
+*.log
+*.pot
+*.pyc
+
+# Secret files
+.env
+
+# Database
+db.sqlite3
+
+# ChromeDriver
+chromedriver.exe
+
+# Backup files
+*.bak
+
+# IDE
+.vscode/
+.idea/
+*.swp
