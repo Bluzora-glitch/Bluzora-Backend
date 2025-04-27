@@ -6,6 +6,11 @@ from django.utils.timezone import make_aware
 from django.http import JsonResponse
 from django.db import transaction, IntegrityError
 from .models import Crop, CropVariable
+from django.shortcuts import render
+
+# ฟังก์ชันสำหรับแสดงหน้าแรก
+def home(request):
+    return render(request, 'home.html')
 
 def convert_thai_date(thai_date):
     """ แปลงวันที่ภาษาไทยเป็น YYYY-MM-DD """
@@ -187,3 +192,4 @@ def update_all_crop_prices(request):
         "message": f"นำเข้าข้อมูลจาก {success_count} ไฟล์สำเร็จ!",
         "skipped_summary": overall_skipped
     })
+

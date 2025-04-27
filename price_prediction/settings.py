@@ -17,6 +17,8 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",  # ถ้ามีไฟล์ static ในโฟลเดอร์ root ของโปรเจค
 ]
 
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+
 
 # สำหรับการตั้งค่า DEBUG จาก .env
 DEBUG = os.getenv('DEBUG') == 'True'
@@ -71,7 +73,7 @@ ROOT_URLCONF = 'price_prediction.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
