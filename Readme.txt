@@ -21,6 +21,7 @@ pip install django selenium pandas beautifulsoup4 requests
 
 เปิดมาต้องเรียก ใช้เพื่ออัพเดต database
 python manage.py showmigrations
+python manage.py makemigrations
 python manage.py migrate  # ถ้าพบว่าต้อง migrate
 
 ใช้ runserver เพื่อดูหน้าเว็บ
@@ -34,8 +35,21 @@ random forest https://colab.research.google.com/drive/1VmDUHsPRwsDxdIFXStAQHBdXF
 http://127.0.0.1:8000/api/update-all-prices/
 เว็บ admin จัดการข้อมูล
 http://127.0.0.1:8000/admin/crops/cropvariable/
+เว็บอัปเดต ml เรียกใช้ feature_engineering, recursive_forecast 
+http://127.0.0.1:8000/crops/forecast/
+ตอนนี้ API root endpoint จะอยู่ที่:
+http://127.0.0.1:8000/api/
+http://127.0.0.1:8000/api/crops/forecast/
+http://127.0.0.1:8000/api/crop-variables/
+http://127.0.0.1:8000/api/predicted-data/
+http://127.0.0.1:8000/api/combined-priceforecast/?vegetableName=%E0%B8%9C%E0%B8%B1%E0%B8%81%E0%B8%84%E0%B8%B0%E0%B8%99%E0%B9%89%E0%B8%B2%20%E0%B8%84%E0%B8%A5%E0%B8%B0&startDate=2025-03-02&endDate=2025-03-31
+http://127.0.0.1:8000/api/crop-info-list/
+http://127.0.0.1:8000/api/quarterly-avg/?crop_name=ผักกวางตุ้ง คละ&startDate=2023-01-01&endDate=2023-01-31
+
+
 ดูว่ามี url ไรบ้าง
 python manage.py show_urls
+
 
 อันนี้ ลืม
 python manage.py shell
@@ -47,6 +61,16 @@ psql -U postgres
 psql -U postgres -d crop_db
 \dt
 password ก็คือ password
+
+git
+git status
+git branch
+git remote -v
+git add .
+git commit -m "แก้ปัญหาเรียกapiโหลดช้า"
+git push -f origin main
+git push origin backend_with_api_date
+ 
 
 ข้างล่างนี่ไม่มีไร
 
@@ -133,3 +157,67 @@ Indexes:
     "crops_predicteddata_crop_id_73985ce3" btree (crop_id)
 Foreign-key constraints:
     "crops_predicteddata_crop_id_73985ce3_fk_crops_crop_crop_id" FOREIGN KEY (crop_id) REFERENCES crops_crop(crop_id) DEFERRABLE INITIALLY DEFERRED
+
+
+PS D:\Bluzora backend> python manage.py show_urls
+/admin/ django.contrib.admin.sites.index        admin:index
+/admin/<app_label>/     django.contrib.admin.sites.app_index    admin:app_list
+/admin/<url>    django.contrib.admin.sites.catch_all_view
+/admin/auth/group/      django.contrib.admin.options.changelist_view admin:auth_group_changelist
+/admin/auth/group/<path:object_id>/     django.views.generic.base.RedirectView
+/admin/auth/group/<path:object_id>/change/      django.contrib.admin.options.change_view      admin:auth_group_change
+/admin/auth/group/<path:object_id>/delete/      django.contrib.admin.options.delete_view      admin:auth_group_delete
+/admin/auth/group/<path:object_id>/history/     django.contrib.admin.options.history_view     admin:auth_group_history
+/admin/auth/group/add/  django.contrib.admin.options.add_view   admin:auth_group_add
+/admin/auth/user/       django.contrib.admin.options.changelist_view admin:auth_user_changelist
+/admin/auth/user/<id>/password/ django.contrib.auth.admin.user_change_password        admin:auth_user_password_change
+/admin/auth/user/<path:object_id>/      django.views.generic.base.RedirectView
+/admin/auth/user/<path:object_id>/change/       django.contrib.admin.options.change_view      admin:auth_user_change
+/admin/auth/user/<path:object_id>/delete/       django.contrib.admin.options.delete_view      admin:auth_user_delete
+/admin/auth/user/<path:object_id>/history/      django.contrib.admin.options.history_view     admin:auth_user_history
+/admin/auth/user/add/   django.contrib.auth.admin.add_view      admin:auth_user_add
+/admin/autocomplete/    django.contrib.admin.sites.autocomplete_view admin:autocomplete
+/admin/crops/crop/      django.contrib.admin.options.changelist_view admin:crops_crop_changelist
+/admin/crops/crop/<path:object_id>/     django.views.generic.base.RedirectView
+/admin/crops/crop/<path:object_id>/change/      django.contrib.admin.options.change_view      admin:crops_crop_change
+/admin/crops/crop/<path:object_id>/delete/      django.contrib.admin.options.delete_view      admin:crops_crop_delete
+/admin/crops/crop/<path:object_id>/history/     django.contrib.admin.options.history_view     admin:crops_crop_history
+/admin/crops/crop/add/  django.contrib.admin.options.add_view   admin:crops_crop_add
+/admin/crops/cropvariable/      django.contrib.admin.options.changelist_view  admin:crops_cropvariable_changelist
+/admin/crops/cropvariable/<path:object_id>/     django.views.generic.base.RedirectView
+/admin/crops/cropvariable/<path:object_id>/change/      django.contrib.admin.options.change_view      admin:crops_cropvariable_change       
+/admin/crops/cropvariable/<path:object_id>/delete/      django.contrib.admin.options.delete_view      admin:crops_cropvariable_delete       
+/admin/crops/cropvariable/<path:object_id>/history/     django.contrib.admin.options.history_view     admin:crops_cropvariable_history      
+/admin/crops/cropvariable/add/  django.contrib.admin.options.add_viewadmin:crops_cropvariable_add
+/admin/crops/predicteddata/     django.contrib.admin.options.changelist_view  admin:crops_predicteddata_changelist
+/admin/crops/predicteddata/<path:object_id>/    django.views.generic.base.RedirectView
+/admin/crops/predicteddata/<path:object_id>/change/     django.contrib.admin.options.change_view      admin:crops_predicteddata_change      
+/admin/crops/predicteddata/<path:object_id>/delete/     django.contrib.admin.options.delete_view      admin:crops_predicteddata_delete      
+/admin/crops/predicteddata/<path:object_id>/history/    django.contrib.admin.options.history_view     admin:crops_predicteddata_history     
+/admin/crops/predicteddata/add/ django.contrib.admin.options.add_viewadmin:crops_predicteddata_add
+/admin/jsi18n/  django.contrib.admin.sites.i18n_javascript      admin:jsi18n
+/admin/login/   django.contrib.admin.sites.login        admin:login   
+/admin/logout/  django.contrib.admin.sites.logout       admin:logout  
+/admin/password_change/ django.contrib.admin.sites.password_change   admin:password_change
+/admin/password_change/done/    django.contrib.admin.sites.password_change_done       admin:password_change_done
+/admin/r/<int:content_type_id>/<path:object_id>/        django.contrib.contenttypes.views.shortcut    admin:view_on_site
+/api/   rest_framework.routers.APIRootView      api-root
+/api/<drf_format_suffix:format> rest_framework.routers.APIRootView   api-root
+/api/crop-variables/    crops.api.views_api.CropVariableViewSet cropvariable-list
+/api/crop-variables/<pk>/       crops.api.views_api.CropVariableViewSet       cropvariable-detail
+/api/crop-variables/<pk>\.<format>/     crops.api.views_api.CropVariableViewSet       cropvariable-detail
+/api/crop-variables\.<format>/  crops.api.views_api.CropVariableViewSet       cropvariable-list
+/api/crops/     crops.api.views_api.CropViewSet crop-list
+/api/crops/<pk>/        crops.api.views_api.CropViewSet crop-detail   
+/api/crops/<pk>\.<format>/      crops.api.views_api.CropViewSet crop-detail
+/api/crops\.<format>/   crops.api.views_api.CropViewSet crop-list     
+/api/forecast/  crops.views_ml.forecast_and_save        forecast_and_save
+/api/predicted-data/    crops.api.views_api.PredictedDataViewSet     predicteddata-list
+/api/predicted-data/<pk>/       crops.api.views_api.PredictedDataViewSet      predicteddata-detail
+/api/predicted-data/<pk>\.<format>/     crops.api.views_api.PredictedDataViewSet      predicteddata-detail
+/api/predicted-data\.<format>/  crops.api.views_api.PredictedDataViewSet      predicteddata-list
+/api/update-all-prices/ crops.views_data.update_all_crop_prices update_all_crop_prices
+/api/update-prices/     crops.views_data.update_crop_prices_from_request      update-prices
+/crops/forecast/        crops.views_ml.forecast_and_save        forecast_and_save
+/crops/update-all-prices/       crops.views_data.update_all_crop_prices       update_all_crop_prices
+/crops/update-prices/   crops.views_data.update_crop_prices_from_request      update-prices
