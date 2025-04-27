@@ -19,14 +19,10 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-from django.contrib import admin
-from django.urls import path, include
-
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('crops.urls')),
-    path('crops/', include('crops.urls')),
-    path('', include('crops.api.urls')),
+    path('', include('crops.urls')),  # ใช้เส้นทางนี้สำหรับหน้าแรก
+    path('api/', include('crops.api.urls')),  # ใช้แยกเส้นทาง API
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
