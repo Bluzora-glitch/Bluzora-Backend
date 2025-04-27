@@ -15,8 +15,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # ตั้งไว้ท�
 
 
 STATICFILES_DIRS = [
-    BASE_DIR / "static",  # ถ้ามีไฟล์ static ในโฟลเดอร์ root ของโปรเจค
+    BASE_DIR / "static",  # ใช้โฟลเดอร์ static ในโปรเจคของคุณ
+    '/opt/render/project/src/static',  # เพิ่ม path ที่ Render ใช้สำหรับ static
 ]
+
 
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
