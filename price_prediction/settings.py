@@ -9,6 +9,11 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+from dotenv import load_dotenv
+
+load_dotenv()
+
+DEBUG = os.getenv('DEBUG') == 'True'
 
 from pathlib import Path
 
@@ -20,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-v))+o$2%9zd^1i0xy7l3ddlqnw^5=j&i4a45m4sm*m_g8-@&y*'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -154,10 +159,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'crop_db',
-        'USER': 'postgres',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
+
+import dj_database_url
+
+# ถ้ามี DATABASE_URL จาก .env (ใช้กับ production บน Render)
+DATABASE_URL = os.getenv('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES['default'] = dj_database_url.config(default=DATABASE_URL)
