@@ -13,6 +13,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # ตั้งไว้ที่ root directory
 
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # ถ้ามีไฟล์ static ในโฟลเดอร์ root ของโปรเจค
+]
+
+
 # สำหรับการตั้งค่า DEBUG จาก .env
 DEBUG = os.getenv('DEBUG') == 'True'
 
@@ -20,8 +25,7 @@ DEBUG = os.getenv('DEBUG') == 'True'
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # Allowed hosts (เพิ่มโดเมนที่จำเป็น)
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
-
+ALLOWED_HOSTS = ['bluzora-backend.onrender.com', 'www.bluzora-backend.onrender.com', 'localhost', '127.0.0.1']
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
