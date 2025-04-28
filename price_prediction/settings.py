@@ -3,26 +3,21 @@ from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
 
+# สำหรับการตั้งค่า DEBUG จาก .env
+DEBUG = os.getenv('DEBUG') == 'True'
+
 # โหลดค่า .env
 load_dotenv()
 
 # กำหนด BASE_DIR เพียงครั้งเดียว
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ตั้งค่า STATIC_URL และ STATIC_ROOT
-STATIC_URL = '/static/'  # URL สำหรับเข้าถึงไฟล์ static
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # ที่เก็บไฟล์ static ที่รวบรวมแล้ว
+STATIC_URL = '/static/'
 
-STATICFILES_DIRS = [
-    BASE_DIR / "static",  # ถ้ามีไฟล์ static ในโฟลเดอร์ root ของโปรเจค
-]
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # ใช้ใน production
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# อื่นๆ ที่เกี่ยวข้องกับ Static Files
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
-
-
-# สำหรับการตั้งค่า DEBUG จาก .env
-DEBUG = os.getenv('DEBUG') == 'True'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
@@ -53,6 +48,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 # CORS configuration
