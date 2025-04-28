@@ -3,35 +3,36 @@ from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+# --- Base directory and loading .env (development only) ---
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / '.env')
+# Load .env if exists (local development)
+if os.getenv('DEBUG', 'False') == 'True':
+    load_dotenv(BASE_DIR / '.env')
 
-# Debug mode
-DEBUG = os.getenv('DEBUG') == 'True'
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-# Secret key
+# --- Security & debug ---
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-# Allowed hosts
+# --- Hosts ---
 ALLOWED_HOSTS = [
-    'bluzora-backend.onrender.com',
-    'www.bluzora-backend.onrender.com',
     'localhost',
     '127.0.0.1',
+    'bluzora-backend.onrender.com',
 ]
 
-# Static files (CSS, JavaScript)
+# --- Static files ---
 STATIC_URL = '/static/'
 if not DEBUG:
     STATIC_ROOT = BASE_DIR / 'staticfiles'
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Application definition
+# --- Media (not used for production uploads) ---
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# --- Installed apps ---
 INSTALLED_APPS = [
+    # Django core
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -47,12 +48,14 @@ INSTALLED_APPS = [
     'cloudinary',
     'cloudinary_storage',
 
-    # Local apps
+    # Local
     'crops',
 ]
 
+# --- Middleware ---
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -60,13 +63,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
-# CORS
+# --- CORS ---
 CORS_ALLOW_ALL_ORIGINS = True
 
-# REST framework
+# --- REST Framework ---
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
@@ -75,8 +77,11 @@ REST_FRAMEWORK = {
     'DEFAULT_CHARSET': 'utf-8',
 }
 
+# --- URLs and WSGI ---
 ROOT_URLCONF = 'price_prediction.urls'
+WSGI_APPLICATION = 'price_prediction.wsgi.application'
 
+# --- Templates ---
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -93,14 +98,10 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'price_prediction.wsgi.application'
-
-# Database configuration
+# --- Database ---
 DATABASE_URL = os.getenv('DATABASE_URL')
 if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
-    }
+    DATABASES = {'default': dj_database_url.config(default=DATABASE_URL, conn_max_age=600)}
 else:
     DATABASES = {
         'default': {
@@ -113,18 +114,19 @@ else:
         }
     }
 
-# Cloudinary storage for media files
+# --- Cloudinary storage for media files ---
+# Use Cloudinary for all media uploads
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# Credentials via env vars (underscore, no dots)
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
     'API_KEY':    os.getenv('CLOUDINARY_API_KEY'),
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
 }
 
-# Internationalization
+# --- Internationalization ---
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
