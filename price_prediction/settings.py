@@ -20,6 +20,10 @@ ALLOWED_HOSTS = [
     'bluzora-backend.onrender.com',
 ]
 
+# --- Cloudinary storage for media files ---
+# Use Cloudinary for all media uploads
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 # --- Static files ---
 STATIC_URL = '/static/'
 if not DEBUG:
@@ -113,16 +117,6 @@ else:
             'PORT': os.getenv('DB_PORT', '5432'),
         }
     }
-
-# --- Cloudinary storage for media files ---
-# Use Cloudinary for all media uploads
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-# Credentials via env vars (underscore, no dots)
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY':    os.getenv('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
-}
 
 # --- Internationalization ---
 LANGUAGE_CODE = 'en-us'
