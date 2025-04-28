@@ -13,6 +13,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from .quarterly_avg_api import quarterly_avg_data
 from crops.api.views_api import migrate_images
+from .views_api import debug_storage
 
 router = DefaultRouter()
 router.register(r'crops', CropViewSet)
@@ -31,6 +32,7 @@ urlpatterns = [
     path('api/crop-info-list/', all_vegetable_info, name='crop_info_list'),
     path('api/quarterly-avg/', quarterly_avg_data, name='quarterly_avg'),
     path('api/migrate-images/', migrate_images, name='migrate_images'),
+    path('debug-storage/', debug_storage, name='debug_storage'),
 ]
 
 if settings.DEBUG:  # ถ้าใน local development

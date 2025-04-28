@@ -12,6 +12,7 @@ from .serializers import CropSerializer, CropVariableSerializer, PredictedDataSe
 import os
 from django.conf import settings
 from django.core.files import File
+from django.core.files.storage import default_storage
 
 
 import math
@@ -361,3 +362,12 @@ def migrate_images(request):
             results.append({'file': filename, 'vegetable': veg_name, 'status': 'file not found'})
 
     return Response(results)
+
+@api_view(['GET'])
+def debug_storage(request):
+    """
+    คืนชื่อคลาส storage ที่ Django ใช้งานจริงบน production
+    """
+    return Response({
+        'default_storage': default_storage.__class__.__name__,
+    })
