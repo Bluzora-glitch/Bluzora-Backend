@@ -116,9 +116,9 @@ else:
 # Cloudinary storage for media files
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_STORAGE.CLOUD_NAME'),
-    'API_KEY': os.getenv('CLOUDINARY_STORAGE.API_KEY'),
-    'API_SECRET': os.getenv('CLOUDINARY_STORAGE.API_SECRET'),
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY':    os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
 }
 
 # Internationalization
