@@ -99,9 +99,8 @@ DATABASES = {
     }
 }
 
-# Static files (CSS, JavaScript, Images)
-MEDIA_URL = '/crop_images/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'crop_images')
+MEDIA_URL = '/media/'  # URL สำหรับการเข้าถึงไฟล์
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # ที่เก็บไฟล์ที่อัปโหลดในเซิร์ฟเวอร์
 
 # Internationalization settings
 LANGUAGE_CODE = 'en-us'
