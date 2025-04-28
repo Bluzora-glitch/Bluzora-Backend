@@ -12,6 +12,7 @@ from .crop_info_list import all_vegetable_info  # Import view จาก crop_inf
 from django.conf import settings
 from django.conf.urls.static import static
 from .quarterly_avg_api import quarterly_avg_data
+from crops.api.views_api import migrate_images
 
 router = DefaultRouter()
 router.register(r'crops', CropViewSet)
@@ -29,11 +30,10 @@ urlpatterns = [
     # URL สำหรับแสดงข้อมูลผักทั้งหมด (จาก Crop) ในรูปแบบที่ต้องการ
     path('api/crop-info-list/', all_vegetable_info, name='crop_info_list'),
     path('api/quarterly-avg/', quarterly_avg_data, name='quarterly_avg'),
+    path('api/migrate-images/', migrate_images, name='migrate_images'),
 ]
 
 if settings.DEBUG:  # ถ้าใน local development
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 else:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

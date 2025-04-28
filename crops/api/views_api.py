@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import PageNumberPagination
@@ -9,6 +9,10 @@ from django.http import JsonResponse
 from crops.models import Crop, CropVariable, PredictedData
 from .filters import CropVariableFilter, PredictedDataFilter
 from .serializers import CropSerializer, CropVariableSerializer, PredictedDataSerializer
+import os
+from django.conf import settings
+from django.core.files import File
+
 
 import math
 
@@ -259,3 +263,101 @@ def _get_closest_price(crop_obj, target_date):
     if candidate:
         return float(candidate.average_price or 0.0)
     return 0.0
+
+# --------------------------------------------------
+# One-time migration endpoint to re-upload local images to Cloudinary
+# --------------------------------------------------
+@api_view(['GET'])
+def migrate_images(request):
+    """
+    Migrate existing local media files to Cloudinary based on a filename->crop_name mapping.
+    """
+    # ตารางแม็ปไฟล์ -> ชื่อพืช
+    FILE_MAP = {
+        "vegetables-2202487_1280.jpg":   "ผักคะน้า คละ",
+        "Untitled_design.png":            "ผักกวางตุ้ง คละ",
+        "pshdqhqvvakkbh3zevrh.webp":     "ผักชี คละ (บาท/กก.)",
+        "ตนหอม_UpDZtwv.jpg":            "ต้นหอม คละ (บาท/กก.)",
+        "ดไซนทยงไมไดตงชอ_3.png":       "ผักบุ้งจีน คละ",
+        "salad-3480650_1280.jpg":        "ผักกาดหอม คละ",
+        "tomato-9390177_1280.webp":      "มะเขือเทศผลใหญ่ คละ",
+        "ขนฉาย_PSaAyqq.jpg":            "ขึ้นฉ่าย คละ (บาท/กก.)",
+        "crop_images/พรกชฟา.jpg":        "พริกสดชี้ฟ้า (บาท/กก.)",
+        "tomato-9390177_1280_0laA3tA.webp": "มะเขือเทศผลใหญ่ คัด",
+        "แตงกวา_iNSxduA.jpg":           "แตงกวา คัด",
+        "แตงกวา.jpg":                    "แตงกวา คละ",
+        "image-1549402831451_omjzegj.jpg": "ฟักเขียว คัด",
+        "image-1549402831451.jpg":       "ฟักเขียว คละ",
+        "ดไซนทยงไมไดตงชอ_6_pxuFunJ.png":"หัวผักกาด คัด",
+        "ดไซนทยงไมไดตงชอ_6.png":        "หัวผักกาด คละ",
+        "ดไซนทยงไมไดตงชอ_1.png":        "กะหล่ำดอก คัด",
+        "กะหลำดอก1.png":                 "กะหล่ำดอก คละ",
+        "ดไซนทยงไมไดตงชอ_2.png":        "กะหล่ำปลี คัด",
+        "green-1939664_1280.jpg":         "กะหล่ำปลี คละ",
+        "vegetables-2202487_1280_S4Ms9oN.jpg":"ผักคะน้า คัด",
+        "MG_0442-Selected-1024x683.jpg":   "ข้าวโพดฝักอ่อน",
+        "ดไซนทยงไมไดตงชอ_8.png":        "ขิงแก่",
+        "Young-ginger-raw.jpg":           "ขิง อ่อน",
+        "กระชายขาว.jpg":                 "กระชายขาว คละ",
+        "ดไซนทยงไมไดตงชอ_5_oJINbbC.png":"หน่อไม้ฝรั่ง คัด",
+        "ดไซนทยงไมไดตงชอ_5.png":        "หน่อไม้ฝรั่ง คละ",
+        "Untitled_design_3rkh959.png":     "ผักกวางตุ้ง คัด",
+        "ขนฉาย_fNS6M9m.jpg":              "ขึ้นฉ่าย คัด (บาท/ขีด)",
+        "ขนฉาย_xq9XkYg.jpg":              "ขึ้นฉ่าย คัด (บาท/กก.)",
+        "ขนฉาย_NEoz0nd.jpg":              "ขึ้นฉ่าย คละ (บาท/ขีด)",
+        "ดไซนทยงไมไดตงชอ_7.png":         "มะนาว เบอร์ 1-2",
+        "ดไซนทยงไมไดตงชอ_7_uGB4m6A.png": "มะนาว เบอร์ 3-4",
+        "มะเขอเปราะ-Thai-egg-plant-1024x809.jpg.webp":"มะเขือเจ้าพระยา",
+        "631100000136_Spu6DS8.jpg":        "มะระจีน คัด",
+        "631100000136.jpg":                "มะระจีน คละ",
+        "Product_50019_124385316_fullsize_RDFuryQ.jpg":"ผักบุ้งไทย (10 กำ)",
+        "Product_50019_124385316_fullsize.jpg":"ผักบุ้งไทย",
+        "ดไซนทยงไมไดตงชอ_3_oYjRrID.png":"ผักบุ้งจีน คัด",
+        "pshdqhqvvakkbh3zevrh_AppmGgn.webp":"ผักชี คัด (บาท/ขีด)",
+        "pshdqhqvvakkbh3zevrh_WO2h4FR.webp":"ผักชี คัด (บาท/กก.)",
+        "pshdqhqvvakkbh3zevrh_CaL3VuZ.webp":"ผักชี คละ (บาท/ขีด)",
+        "salad-3480650_1280_y5sdPJS.jpg":"ผักกาดหอม คัด",
+        "ดไซนทยงไมไดตงชอ_10_uaJPjLI.png":"ผักกาดขาว (ลุ้ย) คัด",
+        "ดไซนทยงไมไดตงชอ_10.png":"ผักกาดขาว (ลุ้ย) คละ",
+        "ดไซนทยงไมไดตงชอ_9.png":"ผักกะเฉด",
+        "cc9jqbeuvipprtvvotve.png":"มะละกอ (พันธุ์แขกดำดำเนิน) คละ",
+        "image-1549403069110_fNvM5u6.jpg":"พริกขี้หนูจินดา (แดง) (บาท/ขีด)",
+        "image-1549403069110.jpg":"พริกขี้หนูจินดา (แดง) (บาท/กก.)",
+        "5dfafc56595344c18993b0e1377c29b9.webp":"พริกขี้หนูสวน (เม็ดกลาง)",
+        "9d924846bd04e5d69e90674d54b8d384.jpg":"พริกสดชี้ฟ้า (บาท/ขีด)",
+        "ดไซนทยงไมไดตงชอ_4_QzUM6Ro.png":"มะเขือเทศสีดา คัด",
+        "ดไซนทยงไมไดตงชอ_4.png":"มะเขือเทศสีดา คละ",
+        "ตนหอม_1_3qcaJcN.jpg":"ต้นหอม คัด (บาท/ขีด)",
+        "ตนหอม_1_MOsz2as.jpg":"ต้นหอม คัด (บาท/กก.)",
+        "ตนหอม_1.jpg":"ต้นหอม คละ (บาท/ขีด)",
+        "yardlong-bean-5642281_1280_Z7Elnzg.jpg":"ถั่วฝักยาว คัด",
+        "yardlong-bean-5642281_1280.jpg":"ถั่วฝักยาว คละ",
+    }
+
+    results = []
+    media_root = settings.MEDIA_ROOT  # โฟลเดอร์ media ของคุณ
+
+    for filename, veg_name in FILE_MAP.items():
+        crop = Crop.objects.filter(crop_name=veg_name).first()
+        if not crop:
+            results.append({'file': filename, 'vegetable': veg_name, 'status': 'crop not found'})
+            continue
+
+        # กำหนด path ตามจริง
+        # ถ้า filename มี folder ใน key อยู่แล้ว (เช่น "crop_images/xxx") ให้ใช้ตรงๆ
+        # ถ้าไม่มี ให้มองใน media/crop_images/
+        if '/' in filename or '\\' in filename:
+            rel_path = filename.replace('\\', '/')
+        else:
+            rel_path = f"crop_images/{filename}"
+
+        local_path = os.path.join(media_root, *rel_path.split('/'))
+
+        if os.path.exists(local_path):
+            with open(local_path, 'rb') as f:
+                crop.crop_image.save(os.path.basename(filename), File(f), save=True)
+            results.append({'file': filename, 'vegetable': veg_name, 'status': 'migrated'})
+        else:
+            results.append({'file': filename, 'vegetable': veg_name, 'status': 'file not found'})
+
+    return Response(results)
