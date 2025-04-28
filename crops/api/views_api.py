@@ -15,6 +15,7 @@ from django.core.files import File
 from django.core.files.storage import default_storage
 
 
+
 import math
 
 class CropVariablePagination(PageNumberPagination):
@@ -366,8 +367,8 @@ def migrate_images(request):
 @api_view(['GET'])
 def debug_storage(request):
     """
-    คืนชื่อคลาส storage ที่ Django ใช้งานจริงบน production
+    คืนชื่อ storage backend ที่กำลังใช้งานจริง
     """
     return Response({
-        'default_storage': default_storage.__class__.__name__,
+        'default_storage': default_storage.__class__.__name__
     })

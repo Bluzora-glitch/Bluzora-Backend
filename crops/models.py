@@ -1,10 +1,11 @@
 from django.db import models
 from datetime import date
+from cloudinary.models import CloudinaryField
 
 # 1. Crop Table
 class Crop(models.Model):
     crop_id = models.AutoField(primary_key=True)
-    crop_image = models.ImageField(upload_to="crop_images/", null=True, blank=True)
+    crop_image = CloudinaryField('image',folder='crop_images',blank=True,null=True)
     crop_name = models.CharField(max_length=255, unique=True)
     unit = models.CharField(max_length=50)
     min_growth_duration = models.IntegerField(help_text="ระยะเวลาปลูกขั้นต่ำ (วัน)",default=30)
