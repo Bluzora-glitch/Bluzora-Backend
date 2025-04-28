@@ -21,8 +21,10 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('crops.urls')),  # ใช้เส้นทางนี้สำหรับหน้าแรก
-    path('api/', include('crops.api.urls')),  # ใช้แยกเส้นทาง API
+    # รวม URLs ของแอปต่าง ๆ ที่คุณมีในโปรเจค เช่น app 'crops'
+    path('', include('crops.urls')),
+    path('', include('crops.api.urls')),  # URL สำหรับ API ของคุณ
+    path('api/', include('crops.api.urls')),
 ]
 
 
