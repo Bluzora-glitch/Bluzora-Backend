@@ -1,12 +1,4 @@
-PostgreSQL password for the database superuser Honeyyy port 5432
 
-mail: Bluzora System ,birth 16/02/2000
-เมลgoogleงานนี้
-bluzorasystem@gmail.com
-Bluzorarara18
- superuser username: postgres
-Email address: bluzorasystem@gmail.com
-password: password
 
 
 เซ็ท env ไว้ละ เปิดมาใช้
